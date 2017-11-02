@@ -9,11 +9,14 @@ if (!process.env.NODE_ENV) {
 const opn = require('opn')
 const path = require('path')
 const express = require('express')
+const bodyParser = require('body-parser')
+var cookieParser = require('cookie-parser')
 const webpack = require('webpack')
 const proxyMiddleware = require('http-proxy-middleware')
 const webpackConfig = (process.env.NODE_ENV === 'testing' || process.env.NODE_ENV === 'production')
   ? require('./webpack.prod.conf')
   : require('./webpack.dev.conf')
+const {applyMock} = require("./mock")
 
 // default port where dev server listens for incoming traffic
 const port = process.env.PORT || config.dev.port
@@ -67,6 +70,15 @@ app.use(devMiddleware)
 // serve pure static assets
 const staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
 app.use(staticPath, express.static('./static'))
+app.use(cookieParser())
+
+app.use(bodyParser.json({ limit: '5mb' }));
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '5mb',
+}));
+
+applyMock(app)
 
 const uri = 'http://localhost:' + port
 

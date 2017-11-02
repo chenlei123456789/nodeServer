@@ -2,6 +2,9 @@
 const path = require('path')
 const config = require('../config')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+//引入mock必须的
+const { resolve,posix } = require('path');
+const { realpathSync } = require('fs');
 
 exports.assetsPath = function (_path) {
   const assetsSubDirectory = process.env.NODE_ENV === 'production'
@@ -69,4 +72,24 @@ exports.styleLoaders = function (options) {
     })
   }
   return output
+}
+
+exports.winPath = function (path) {
+  return path.replace(/\\/g, '/');
+}
+
+exports.getPaths = function getPaths(cwd) {
+  const appDirectory = realpathSync(cwd);
+  function resolveApp(relativePath) {
+    return resolve(appDirectory, relativePath);
+  }
+
+  return {
+    appBuild: resolveApp('dist'),
+    appPackageJson: resolveApp('package.json'),
+    appSrc: resolveApp('src'),
+    appNodeModules: resolveApp('node_modules'),
+    resolveApp,
+    appDirectory,
+  };
 }
